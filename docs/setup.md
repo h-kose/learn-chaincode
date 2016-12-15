@@ -53,8 +53,13 @@ The instructions below should take you through the process of properly installin
 ```
 
 # Create the parent directories on your GOPATH
+<<<<<<< HEAD
 mkdir -p $GOPATH/github.com/hyperledger
 cd $GOAPTH/github.com/hyperledger
+=======
+mkdir -p $GOPATH/src/github.com/hyperledger
+cd $GOPATH/src/github.com/hyperledger
+>>>>>>> origin/master
 
 # Clone the appropriate release codebase into $GOPATH/github.com/hyperledger/fabric
 # Note that the v0.5 release is a branch of the repository.  It is defined below after the -b argument

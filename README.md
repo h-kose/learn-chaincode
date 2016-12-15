@@ -13,7 +13,7 @@ In order to support multiple versions of the Hyperledger fabric, this repository
   - Hyperledger fabric v0.5-developer-preview
   - IBM Bluemix Blockchain Service v0.4.2
 
-- [v2.0](https://github.com/ibm-blockchain/learn-chaincode/tree/v2.0) (Coming Soon)
+- [v2.0](https://github.com/ibm-blockchain/learn-chaincode/tree/v2.0)
 
   - Hyperledger fabric v0.6-developer-preview
 
@@ -60,15 +60,15 @@ The following tasks take you through the process of building a pipeline that wil
 - Test your chaincode using the fabric REST API.
 - Repeat.
 
-- Fork this repository to your GitHub account. This can be accomplished quickly by scrolling up and clicking the **Fork** button at the top of this repository.
+1. Fork this repository to your GitHub account. This can be accomplished quickly by scrolling up and clicking the __Fork__ button at the top of this repository.
 
   ![Fork Button Screenshot](imgs/fork.png)
 
-  "Forking" the repository means creating a copy of this repository under your GitHub account. Note that the fork will fork the entire repository including all the branches. Toggle the **Branch** button on the left to see the available branches.
+  "Forking" the repository means creating a copy of this repository under your GitHub account. Note that the fork will fork the entire repository including all the branches. Toggle the __Branch__ button on the left to see the available branches.
 
   ![Branch Button Screenshot](imgs/branch.png)
 
-- Clone your fork into your $GOPATH.
+2. Clone your fork into your $GOPATH.
 
   ```bash
   cd $GOPATH
@@ -81,9 +81,9 @@ The following tasks take you through the process of building a pipeline that wil
 
   Now, you have a copy of your fork on your machine. You will develop your chaincode by making changes to these local files, pushing them to your fork on GitHub, and then deploying the code onto your blockchain network using the REST API on one of your peers.
 
-- Notice that we have provided two different versions of the chaincode used in this tutorial: [Start](start/chaincode_start.go) - the skeleton chaincode from which you will start developing, and [Finished](finished/chaincode_finished.go) - the finished chaincode.
+3. Notice that we have provided two different versions of the chaincode used in this tutorial: [Start](start/chaincode_start.go) - the skeleton chaincode from which you will start developing, and [Finished](finished/chaincode_finished.go) - the finished chaincode.
 
-- Make sure it builds in your local environment:
+4. Make sure it builds in your local environment:
 
   - Open a terminal or command prompt
 
@@ -94,14 +94,14 @@ The following tasks take you through the process of building a pipeline that wil
 
   - It should compile with no errors/text. If not, make sure that you have correctly installed Go per the [development environment setup instructions](docs/setup.md).
 
-- Push the changes back to your fork on GitHub.
+5. Push the changes back to your fork on GitHub.
 
   ```bash
   cd $GOPATH/src/github.com/<YOUR_GITHUB_ID_HERE>/learn-chaincode/
   # See what files have changed locally.  You should see chaincode_start.go
   git status
   # Stage all changes in the local repository for commit
-  git add -all
+  git add --all
   # Commit all staged changes.  Insert a short description after the -m argument
   git commit -m "Compiled my code"
   # Push local commits back to https://github.com/<YOUR_GITHUB_ID_HERE>/learn-chaincode/
@@ -125,10 +125,10 @@ Init is called when you first deploy your chaincode. As the name implies, this f
 In your `chaincode_start.go` file, change the `Init` function so that it stores the first element in the `args` argument to the key "hello_world".
 
 ```go
-func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-    if len(args) != 1 {
-        return nil, errors.New("Incorrect number of arguments. Expecting 1")
-    }
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 1")
+	}
 
     err := stub.PutState("hello_world", []byte(args[0]))
     if err != nil {
@@ -148,8 +148,8 @@ This is done by using the stub function `stub.PutState`. The function interprets
 In your `chaincode_start.go` file, change the `Invoke` function so that it calls a generic write function.
 
 ```go
-func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-    fmt.Println("invoke is running " + function)
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	fmt.Println("invoke is running " + function)
 
     // Handle different functions
     if function == "init" {
@@ -166,6 +166,7 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 Now that it's looking for `write` let's make that function somewhere in your `chaincode_start.go` file.
 
 ```go
+<<<<<<< HEAD
 func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
     var key, value string
     var err error
@@ -182,6 +183,24 @@ func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte
         return nil, err
     }
     return nil, nil
+=======
+func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var key, value string
+	var err error
+	fmt.Println("running write()")
+
+	if len(args) != 2 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
+	}
+
+	key = args[0]                            //rename for fun
+	value = args[1]
+	err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+>>>>>>> origin/master
 }
 ```
 
@@ -194,8 +213,8 @@ As the name implies, `Query` is called whenever you query your chaincode's state
 In your `chaincode_start.go` file, change the `Query` function so that it calls a generic read function, similar to what you did in `Invoke`.
 
 ```go
-func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-    fmt.Println("query is running " + function)
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	fmt.Println("query is running " + function)
 
     // Handle different functions
     if function == "read" {                            //read a variable
@@ -210,9 +229,9 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 Now that it's looking for `read`, let's create that helper function somewhere in your `chaincode_start.go` file.
 
 ```go
-func (t *SimpleChaincode) read(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-    var key, jsonResp string
-    var err error
+func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var key, jsonResp string
+	var err error
 
     if len(args) != 1 {
         return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
